@@ -19,11 +19,20 @@ public class ReviewController {
 		this.reviewService = reviewService;
 	}
 	
-	// 홈: 나의 리뷰 목록
+	// 홈: 나의 리뷰 목록 (userID를 url로 받는 버전)
 	@GetMapping("/reviews/by-user/{userID}")
 	public List<Review> getReviewsByUser(@PathVariable("userID") Integer userID) {
 		return reviewService.getReviewsByUser(userID);
 	}
+	
+	// 홈: 나의 리뷰 목록 (currentUser 버전, 현재 로그인된 유저의 리뷰를 가져온다.)
+	/*
+	@GetMapping("/reviews/me")
+	public List<Review> myReviews(HttpSession session) {
+	    User me = (User) session.getAttribute("currentUser");
+	    return reviewService.getReviewsByUser(me.getUserID());
+	}
+	*/
 	
 	// 상세페이지: 전체 리뷰
 	@GetMapping("/dramas/{dramaID}/reviews")
