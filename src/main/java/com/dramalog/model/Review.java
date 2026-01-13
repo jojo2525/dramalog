@@ -38,6 +38,10 @@ public class Review {
 	@Column(name = "rating")
 	private BigDecimal rating;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+	private User user;
+	
 	public Review() {}
 
 	public Integer getReviewID() {return reviewID;}

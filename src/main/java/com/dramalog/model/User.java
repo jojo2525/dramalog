@@ -40,7 +40,4 @@ public class User {
 	public void setPin4(String pin4) {this.pin4 = pin4;}
 	public void setReviewCount(Integer reviewCount) {this.reviewCount = reviewCount;}
 	public void setLevel(Integer level) {this.level = level;}
-	
-    
-    
 }
