@@ -8,68 +8,39 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Column(name = "user_id")
     private Integer userID;
-
-    @Column(nullable = false, length = 100)
+    
+    @Column(name = "name")
     private String name;
-
-    @Column(nullable = false, length = 50)
+    
+    @Column(name = "pin4")
     private String pin4;
-
-    @Column(name = "review_count")
-    private Integer reviewCount;
-
-    @Column(nullable = false)
-    private Integer level;
+    
+    @Column(name = "review_count", nullable=false)
+    private Integer reviewCount = 0;
+    
+    @Column(name = "level", nullable=false)
+    private Integer level = 0;
     
     public User() {}
-
 	public User(String name, String pin4) {
-		super();
 		this.name = name;
 		this.pin4 = pin4;
 	}
 
-	public Integer getUserID() {
-		return userID;
-	}
+	public Integer getUserID() {return userID;}	
+	public String getName() {return name;}
+	public String getPin4() {return pin4;}
+	public Integer getReviewCount() {return reviewCount;}
+	public Integer getLevel() {return level;}
 
-	public void setUserID(Integer userID) {
-		this.userID = userID;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getPin4() {
-		return pin4;
-	}
-
-	public void setPin4(String pin4) {
-		this.pin4 = pin4;
-	}
-
-	public Integer getReviewCount() {
-		return reviewCount;
-	}
-
-	public void setReviewCount(Integer reviewCount) {
-		this.reviewCount = reviewCount;
-	}
-
-	public Integer getLevel() {
-		return level;
-	}
-
-	public void setLevel(Integer level) {
-		this.level = level;
-	}
+	public void setUserID(Integer userID) {this.userID = userID;}
+	public void setName(String name) {this.name = name;}
+	public void setPin4(String pin4) {this.pin4 = pin4;}
+	public void setReviewCount(Integer reviewCount) {this.reviewCount = reviewCount;}
+	public void setLevel(Integer level) {this.level = level;}
 	
     
     

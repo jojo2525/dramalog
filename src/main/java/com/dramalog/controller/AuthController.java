@@ -16,21 +16,23 @@ public class AuthController {
     }
     
     // 로그인
-    @GetMapping("/login")
+    @PostMapping("/login")
     public User login(
-            @RequestParam("name") String name,
-            @RequestParam("pin4") String pin4,
+            @RequestBody LoginRequest req,
             HttpSession session
     ) {
-        User user = authService.loginRegister(name, pin4);
+        User user = authService.loginRegister(req.name(), req.pin4());
         session.setAttribute("currentUser", user); // AppState.setCurrentUser 대체
         return user;
     }
+    
+    // 로그인용 DTO
+    public record LoginRequest(String name, String pin4) {}
 
     // 현재 유저 확인
     @GetMapping("/me")
     public User me(HttpSession session) {
-        return (User) session.getAttribute("currentUser");
+        return (User) session.getAttribute("currentUser"); // 세션이 현재 유저 객체 반환
     }
 
     // 로그인 여부 확인
@@ -42,7 +44,7 @@ public class AuthController {
     // 로그아웃
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // AppState.logout 대체
-        return "ok";
+        session.invalidate();
+        return "logout ok";
     }
 }
