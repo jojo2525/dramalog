@@ -6,7 +6,7 @@ import com.dramalog.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -22,7 +22,7 @@ public class AuthController {
             HttpSession session
     ) {
         User user = authService.loginRegister(req.name(), req.pin4());
-        session.setAttribute("currentUser", user); // AppState.setCurrentUser 대체
+        session.setAttribute("currentUser", user);
         return user;
     }
     

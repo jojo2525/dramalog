@@ -40,8 +40,13 @@ public class Drama {
 	@Column(name = "cover_image")
 	private String coverImage;
 
-	@Column(name = "avg_rating", nullable=false)
-	private BigDecimal avgRating = BigDecimal.ZERO; // BigDecimal이 double보다 정확
+	@Column(
+		    name = "avg_rating",
+		    precision = 3,
+		    scale = 2,
+		    nullable = true
+		)
+		private BigDecimal avgRating; // BigDecimal이 double보다 정확
 
 	@Column(name = "hot_episode", nullable=false)
 	private Integer hotEpisode = 0;
