@@ -8,14 +8,20 @@ import com.dramalog.dto.DramaDetailResponse;
 import com.dramalog.dto.DramaSummaryResponse;
 import com.dramalog.model.Drama;
 import com.dramalog.repository.DramaRepository;
+import com.dramalog.repository.ReviewRepository;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import jakarta.transaction.Transactional;
 
 @Service
 public class DramaService {
 	
 	private final DramaRepository dramaRepo;
+	private final ReviewRepository reviewRepo;
 	
-	public DramaService(DramaRepository dramaRepo) {
+	public DramaService(DramaRepository dramaRepo, ReviewRepository reviewRepo) {
 		this.dramaRepo = dramaRepo;
+		this.reviewRepo = reviewRepo;
 	}
 	
 	// 홈: 전체 드라마 목록
@@ -72,5 +78,20 @@ public class DramaService {
 				d.getCoverImage(),
 				d.getAvgRating(),
 				d.getHotEpisode());
+	}
+	
+	// 평균 별점 갱신
+	@Transactional
+	public void updateAvgRating(Integer dramaID) {
+		BigDecimal avg = reviewRepo.findAvgRatingForDrama(dramaID);
+		
+		Drama drama = dramaRepo.findById(dramaID)
+				.orElseThrow(() -> new IllegalArgumentException("드라마가 존재하지 않습니다."));
+		
+		if (avg == null) {
+			drama.setAvgRating(null);
+		} else {
+			drama.setAvgRating(avg.setScale(2, RoundingMode.HALF_UP));
+		}
 	}
 }

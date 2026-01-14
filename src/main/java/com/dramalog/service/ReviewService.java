@@ -16,13 +16,16 @@ public class ReviewService {
 	private final ReviewRepository reviewRepo;
 	private final DramaRepository dramaRepo;
 	private final UserRepository userRepo;
+	private final DramaService dramaService;
 	
 	public ReviewService(ReviewRepository reviewRepo,
 			DramaRepository dramaRepo,
-			UserRepository userRepo) {
+			UserRepository userRepo,
+			DramaService dramaService) {
 		this.reviewRepo = reviewRepo;
 		this.dramaRepo = dramaRepo;
 		this.userRepo = userRepo;
+		this.dramaService = dramaService;
 	}
 	
 	// 홈: 나의 리뷰 목록
@@ -98,6 +101,10 @@ public class ReviewService {
 		review.setContent(req.getContent());
 		
 		Review saved = reviewRepo.save(review);
+		
+		if (saved.getEpisodeSelected() == null) {
+			dramaService.updateAvgRating(saved.getDramaID());
+		}
 		
 		return new ReviewResponse(
 				saved.getReviewID(),

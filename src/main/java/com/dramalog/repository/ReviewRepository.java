@@ -1,10 +1,10 @@
 package com.dramalog.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import com.dramalog.model.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
@@ -43,4 +43,14 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     
     // 내가 쓴 리뷰 (최신순)
     List<Review> findByUserIDOrderByCreatedAtDesc(Integer userID);
+    
+    // 평균 별점 계산
+    @Query("""
+    	    SELECT AVG(r.rating)
+    	    FROM Review r
+    	    WHERE r.dramaID = :dramaID
+    	      AND r.episodeSelected IS NULL
+    	""")
+    BigDecimal findAvgRatingForDrama(@Param("dramaID") Integer dramaID);
+
 }
