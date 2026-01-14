@@ -31,6 +31,16 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     		""")
     List<Review> findOverallByDramaSorted(@Param("dramaID") Integer dramaID);
     
+    // 리뷰 회차 API
+    @Query("""
+    		select r.episodeSelected, count(r)
+    		from Review r
+    		where r.dramaID = :dramaID
+    		and r.episodeSelected is not null
+    		group by r.episodeSelected
+    		""")
+    		List<Object[]> countByEpisode(@Param("dramaID") Integer dramaID);
+    
     // 내가 쓴 리뷰 (최신순)
     List<Review> findByUserIDOrderByCreatedAtDesc(Integer userID);
 }

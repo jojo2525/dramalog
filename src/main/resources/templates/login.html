@@ -185,11 +185,11 @@
     }
 
     try {
-      const res = await fetch("/api/auth/login", { // /api 추가
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, pin4 }),
-      });
+		const res = await fetch("/api/auth/login", {
+		  method: "POST",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify({ name, pin4 }),
+		});
 
       if (!res.ok) {
         showError("Login failed. Please try again.");

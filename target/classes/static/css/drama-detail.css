@@ -1,0 +1,73 @@
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; color:#111; background:#fff; }
+
+.topbar{
+  position:sticky; top:0; background:#fff; border-bottom:1px solid #eee;
+  padding:14px 16px; display:flex; align-items:center; gap:12px; z-index:10;
+}
+.back{ text-decoration:none; color:#111; font-size:20px; }
+.title{ font-weight:900; font-size:18px; margin:0 auto; transform: translateX(-12px); }
+
+.container{ padding:16px; }
+
+.hero { margin-top: 8px; }
+
+/* 회색 배경이 가로로 쭉 차는 박스 */
+.coverWrap{
+  width: 100%;
+  background: #eee;
+  border-radius: 12px;
+  padding: 16px 0;         /* 위아래 여백 */
+  display: flex;
+  justify-content: center; /* 이미지 가운데 */
+  align-items: center;
+}
+
+/* 이미지 자체는 더 크게 + 안 잘리게 */
+.cover{
+  width: min(560px, 92%); 
+  height: 260px;           /* 더 커지고 싶으면 올리기  */
+  object-fit: contain;     
+  background: transparent; /* 배경은 wrap이 담당 */
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+}
+.info{ padding-top:12px; }
+.chips{ display:flex; gap:8px; margin-bottom:8px; }
+.chip{ background:#eee; color:#555; border-radius:999px; padding:6px 10px; font-weight:800; font-size:13px; }
+.nameRow{ display:flex; justify-content:space-between; align-items:flex-end; gap:10px; }
+h1{ margin:0; font-size:26px; font-weight:900; }
+.rating{ font-weight:900; font-size:18px; color:#111; }
+.sub{ margin-top:6px; color:#777; font-weight:700; }
+.synopsis{ margin-top:12px; color:#444; line-height:1.5; }
+
+.btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 8px; }
+.btn{ border:none; border-radius:10px; padding:14px 12px; background:#111; color:#fff; font-weight:900; }
+
+.reviewHeader{ display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-top:18px; }
+.reviewHeader h2{ margin:0; font-size:22px; font-weight:900; }
+.hint{ font-size:12px; color:#777; font-weight:700; }
+
+.tags{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 16px; }
+.tag{
+  border:none; border-radius:999px; padding:10px 14px; font-weight:900; font-size:14px;
+  cursor:pointer;
+}
+.tag.outline{ background:#fff; border:2px solid #ddd; color:#444; }
+.tag.green{ background:#bfe7b8; }
+.tag.yellow{ background:#f2edb1; }
+.tag.red{ background:#f3b6ad; }
+
+.tag.active{ outline:3px solid rgba(0,0,0,0.25); }
+
+.reviewList{ display:flex; flex-direction:column; gap:12px; }
+.reviewCard{
+  border:2px solid #ddd; border-radius:12px; padding:14px; background:#fff;
+}
+.reviewTop{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.reviewUser{ font-weight:900; color:#555; }
+.reviewRate{ font-weight:900; }
+.reviewBody{ color:#111; font-weight:800; }
+
+.loading,.empty{ color:#777; font-weight:800; padding:10px 0; }

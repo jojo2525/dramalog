@@ -2,6 +2,12 @@ package com.dramalog.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.dramalog.model.User;
+
+import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PageController {
@@ -13,10 +19,24 @@ public class PageController {
         // -> templates/login.html
     }
 
-    // 홈 (임시!!)
+ // 홈
     @GetMapping("/")
-    public String home() {
-        return "login"; 
-        // 나중에 home.html 만들면 "home"으로 변경하기.
+    public String home(HttpSession session, Model model) {
+
+        User currentUser = (User) session.getAttribute("currentUser");
+
+        String name = (currentUser != null && currentUser.getName() != null && !currentUser.getName().isBlank())
+                ? currentUser.getName()
+                : "홍길동";
+
+        model.addAttribute("userName", name);
+
+        return "home";
+    }
+    
+    // 드라마 상세 페이지 
+    @GetMapping("/drama/{dramaId}")
+    public String dramaDetailPage(@PathVariable Integer dramaId) {
+        return "drama-detail";
     }
 }

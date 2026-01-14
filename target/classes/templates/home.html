@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DramaLog - Home</title>
+  <link rel="stylesheet" href="/css/home.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">DramaLog</div>
+</header>
+
+<main class="container">
+
+  <!-- 레벨 영역 (임시) -->
+  <section class="level-card">
+    <div class="level-badge">Lv.1</div>
+    <div class="level-image">
+      <div class="placeholder">level image</div>
+    </div>
+  </section>
+
+  <!-- 나의 리뷰 (임시) -->
+  <section class="section">
+    <h2 class="section-title">나의 리뷰</h2>
+    <div class="horizontal-scroll">
+      <div class="review-card placeholder">내 리뷰(임시)</div>
+      <div class="review-card placeholder">내 리뷰(임시)</div>
+    </div>
+  </section>
+
+  <!-- 추천 드라마  -->
+  <section class="section">
+    <h2 class="section-title"><span th:text="${userName}">홍길동</span>님이 좋아할만한 드라마
+
+    <div id="grid" class="grid">
+      <!-- JS로 카드 삽입 -->
+    </div>
+
+    <div id="loading" class="hint">불러오는 중...</div>
+    <div id="error" class="hint error" style="display:none;"></div>
+  </section>
+
+</main>
+
+<nav class="tabbar">
+  <a class="tab active" href="/">홈</a>
+  <a class="tab" href="/wishlist">찜</a>
+</nav>
+
+<script>
+  // 여기서 추천 드라마를 REST API로 가져와서 렌더링
+  async function loadRecommendedDramas() {
+    const grid = document.getElementById("grid");
+    const loading = document.getElementById("loading");
+    const errorBox = document.getElementById("error");
+
+    try {
+      loading.style.display = "block";
+      errorBox.style.display = "none";
+
+      // REST 컨트롤러가 제공하는 추천 API
+      const res = await fetch("/api/dramas/recommand");
+      if (!res.ok) throw new Error("API 요청 실패: " + res.status);
+
+      const dramas = await res.json(); // List<DramaSummaryResponse>
+
+      // 기존 내용 초기화
+      grid.innerHTML = "";
+
+      // 카드 생성
+      dramas.forEach(d => {
+        const dramaId = d.dramaId ?? d.dramaID ?? d.id; // 혹시 DTO 필드명이 다를경우에 대비 
+        const title = d.title ?? "";
+        const genre = d.genre ?? "";
+        const rating = d.avgRating ?? "";
+        const cover = d.coverImage ?? "";
+
+        // coverImage가 null/빈값이면 placeholder
+        const imgSrc = (cover && cover.trim().length > 0)
+          ? cover
+          : "https://via.placeholder.com/300x420?text=No+Image";
+
+        const a = document.createElement("a");
+        a.className = "drama-card";
+        a.href = `/drama/${dramaId}`; // 상세 페이지 URL (아래에서 PageController로 연결)
+        a.innerHTML = `
+          <div class="thumb"><img src="${imgSrc}" alt="thumbnail"></div>
+          <div class="meta">
+            <div class="title">${escapeHtml(title)}</div>
+            <div class="sub">${escapeHtml(genre)} <span class="dot">|</span> 별점: ${rating}</div>
+          </div>
+        `;
+        grid.appendChild(a);
+      });
+
+      loading.style.display = "none";
+    } catch (e) {
+      loading.style.display = "none";
+      errorBox.style.display = "block";
+      errorBox.textContent = "드라마 목록을 불러오지 못했어요. (" + e.message + ")";
+      console.error(e);
+    }
+  }
+
+  // XSS 방지용 간단 escape
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  loadRecommendedDramas();
+</script>
+</body>
+</html>

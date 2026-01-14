@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drama Detail</title>
+  <link rel="stylesheet" href="/css/drama-detail.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back" href="/">←</a>
+  <div class="title">리뷰</div>
+</header>
+
+<main class="container">
+	<section class="hero">
+	  <div class="coverWrap">
+	    <img id="cover" class="cover" src="https://via.placeholder.com/800x450" alt="cover" />
+	  </div>
+	  <div class="info">
+      <div class="chips">
+        <span class="chip" id="genreChip">장르</span>
+        <span class="chip" id="yearChip">연도</span>
+      </div>
+      <div class="nameRow">
+        <h1 id="dramaTitle">드라마 제목</h1>
+        <div class="rating"><span>★</span><span id="avgRating">-</span></div>
+      </div>
+      <div class="sub" id="writerActors">작가 | 주연</div>
+      <p class="synopsis" id="synopsis">줄거리</p>
+    </div>
+  </section>
+
+  <section class="btnRow">
+    <button class="btn">리뷰 작성하기</button>
+    <button class="btn">실시간 채팅방</button>
+  </section>
+
+  <section class="reviewSection">
+    <div class="reviewHeader">
+      <h2>Review</h2>
+      <div class="hint">회차를 클릭하면 해당 회차의 리뷰를 표시합니다</div>
+    </div>
+
+    <div id="episodeTags" class="tags"></div>
+
+    <div id="reviewList" class="reviewList"></div>
+  </section>
+</main>
+
+<script>
+  // ✅ URL: /drama/3 형태면 dramaId=3 추출
+  const dramaId = Number(location.pathname.split("/").pop());
+  let selectedEpisode = null; // null = 전체(episodeSelected is null)
+
+  // 회차 수 & 회차별 리뷰 카운트 저장용
+  let episodeCount = 0;
+  const episodeReviewCountMap = new Map(); // episode -> count
+
+  function tagClassByCount(count) {
+    if (count <= 1) return "tag green";
+    if (count === 2) return "tag yellow";
+    return "tag red"; // 3+
+  }
+
+  function renderTags() {
+    const wrap = document.getElementById("episodeTags");
+    wrap.innerHTML = "";
+
+    // "전체" 토글(= episodeSelected null)
+    const allBtn = document.createElement("button");
+    allBtn.className = "tag outline" + (selectedEpisode === null ? " active" : "");
+    allBtn.textContent = "전체";
+    allBtn.onclick = () => {
+      selectedEpisode = null;
+      renderTags();
+      loadReviews();
+    };
+    wrap.appendChild(allBtn);
+
+    for (let ep = 1; ep <= episodeCount; ep++) {
+      const cnt = episodeReviewCountMap.get(ep) ?? 0;
+      const btn = document.createElement("button");
+      btn.className = tagClassByCount(cnt) + (selectedEpisode === ep ? " active" : "");
+      btn.textContent = `${ep}화`;
+
+      btn.onclick = () => {
+        // 같은 태그 다시 누르면 해제 → 전체로
+        selectedEpisode = (selectedEpisode === ep) ? null : ep;
+        renderTags();
+        loadReviews();
+      };
+
+      wrap.appendChild(btn);
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  async function loadDramaDetail() {
+    const res = await fetch(`/api/dramas/${dramaId}`);
+    const d = await res.json();
+
+    document.getElementById("cover").src = d.coverImage || "https://via.placeholder.com/800x450?text=No+Image";
+    document.getElementById("genreChip").textContent = d.genre || "장르";
+    document.getElementById("yearChip").textContent = d.releaseDate || "-";
+    document.getElementById("dramaTitle").textContent = d.title || "";
+    document.getElementById("avgRating").textContent = d.avgRating ?? "-";
+    document.getElementById("writerActors").textContent =
+      `작가 | ${d.writer || "-"}   ·   주연 | ${(d.mainActor1 || "-")} ${(d.mainActor2 || "")}`;
+    document.getElementById("synopsis").textContent = d.synopsis || "";
+
+    episodeCount = d.episodeCount || 0;
+  }
+
+  async function loadEpisodeCounts() {
+    // 회차별 리뷰 개수 가져와서 색칠용 맵 만들기
+    const res = await fetch(`/api/dramas/${dramaId}/review-counts`);
+    const arr = await res.json(); // [[episodeSelected, count], ...]
+
+    episodeReviewCountMap.clear();
+    arr.forEach(row => {
+      const ep = Number(row[0]);
+      const cnt = Number(row[1]);
+      episodeReviewCountMap.set(ep, cnt);
+    });
+  }
+
+  async function loadReviews() {
+    const list = document.getElementById("reviewList");
+    list.innerHTML = `<div class="loading">불러오는 중...</div>`;
+
+    const url = (selectedEpisode === null)
+      ? `/api/dramas/${dramaId}/reviews`
+      : `/api/dramas/${dramaId}/reviews?episodeSelected=${selectedEpisode}`;
+
+    const res = await fetch(url);
+    const reviews = await res.json();
+
+    if (!reviews || reviews.length === 0) {
+      list.innerHTML = `<div class="empty">리뷰가 아직 없어요.</div>`;
+      return;
+    }
+
+    list.innerHTML = reviews.map(r => `
+      <div class="reviewCard">
+        <div class="reviewTop">
+          <div class="reviewUser">${escapeHtml(r.user?.name ?? "익명")}</div>
+          <div class="reviewRate">★ ${r.rating ?? "-"}</div>
+        </div>
+        <div class="reviewBody">${escapeHtml(r.content ?? "")}</div>
+      </div>
+    `).join("");
+  }
+
+  async function init() {
+    await loadDramaDetail();
+    await loadEpisodeCounts();
+    renderTags();
+    await loadReviews();
+  }
+
+  init();
+</script>
+</body>
+</html>

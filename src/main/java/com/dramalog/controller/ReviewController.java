@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.dramalog.model.Review;
+import com.dramalog.model.User;
 import com.dramalog.service.ReviewService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api")
@@ -26,13 +29,18 @@ public class ReviewController {
 	}
 	
 	// 홈: 나의 리뷰 목록 (currentUser 버전, 현재 로그인된 유저의 리뷰를 가져온다.)
-	/*
+	
 	@GetMapping("/reviews/me")
 	public List<Review> myReviews(HttpSession session) {
 	    User me = (User) session.getAttribute("currentUser");
 	    return reviewService.getReviewsByUser(me.getUserID());
 	}
-	*/
+	
+	//상세페이지: 회차별 리뷰 개수 
+	@GetMapping("/dramas/{dramaID}/review-counts")
+	public List<Object[]> getEpisodeReviewCounts(@PathVariable Integer dramaID) {
+	    return reviewService.getEpisodeCounts(dramaID);
+	}
 	
 	// 상세페이지: 전체 리뷰
 	@GetMapping("/dramas/{dramaID}/reviews")

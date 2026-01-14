@@ -28,4 +28,9 @@ public class ReviewService {
 	public List<Review> getEpisodeReviews(Integer dramaID, Integer episodeSelected) {
 		return reviewRepo.findEpisodeByDramaSorted(dramaID, episodeSelected);
 	}
-}
+	
+	// 등록된 회차별 리뷰 개수 
+	public List<Object[]> getEpisodeCounts(Integer dramaID) {
+	    return reviewRepo.countByEpisode(dramaID);
+	}
+} 
