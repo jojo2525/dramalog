@@ -1,10 +1,37 @@
 * { box-sizing: border-box; }
-body { margin:0; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; color:#111; background:#fff; }
+
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  color:#111;
+  background:#e6e6e6; /* 미색 */
+}
+
+/* 가운데 정렬되는 페이지 카드  */
+.page{
+  max-width: 980px;         /* 태블릿~작은 데스크탑 느낌 */
+  margin: 0 auto;           /* 가운데 정렬 */
+  background:#fff;          /* 실제 콘텐츠 배경은 흰색 */
+  min-height: 100vh;
+}
+
+/* 화면이 작은 모바일에서는 꽉 차게 */
+@media (max-width: 1020px){
+  .page{ max-width: 100%; }
+}
 
 .topbar{
-  position:sticky; top:0; background:#fff; border-bottom:1px solid #eee;
-  padding:14px 16px; display:flex; align-items:center; gap:12px; z-index:10;
+  position:sticky; top:0;
+  background:#fff;
+  border-bottom:1px solid #eee;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  z-index:10;
 }
+
 .back{ text-decoration:none; color:#111; font-size:20px; }
 .title{ font-weight:900; font-size:18px; margin:0 auto; transform: translateX(-12px); }
 
@@ -17,22 +44,23 @@ body { margin:0; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "
   width: 100%;
   background: #eee;
   border-radius: 12px;
-  padding: 16px 0;         /* 위아래 여백 */
+  padding: 16px 0;
   display: flex;
-  justify-content: center; /* 이미지 가운데 */
+  justify-content: center;
   align-items: center;
 }
 
 /* 이미지 자체는 더 크게 + 안 잘리게 */
 .cover{
-  width: min(560px, 92%); 
-  height: 260px;           /* 더 커지고 싶으면 올리기  */
-  object-fit: contain;     
-  background: transparent; /* 배경은 wrap이 담당 */
+  width: min(560px, 92%);
+  height: 260px;
+  object-fit: contain;
+  background: transparent;
   border-radius: 10px;
   display: block;
   margin: 0 auto;
 }
+
 .info{ padding-top:12px; }
 .chips{ display:flex; gap:8px; margin-bottom:8px; }
 .chip{ background:#eee; color:#555; border-radius:999px; padding:6px 10px; font-weight:800; font-size:13px; }
@@ -44,16 +72,15 @@ h1{ margin:0; font-size:26px; font-weight:900; }
 
 .btnRow{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 8px; }
 .btn{
-	
-	display: flex;
-	  align-items: center;      /* 세로 가운데 */
-	  justify-content: center;  /* 가로 가운데 */
-	  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border: none;
-  border-radius: 2px;   
+  border-radius: 2px;
   padding: 14px 12px;
 
-  background: #2f2f2f;     
+  background: #2f2f2f;
   color: #ffffff;
 
   font-weight: 700;
@@ -62,10 +89,8 @@ h1{ margin:0; font-size:26px; font-weight:900; }
   cursor: pointer;
   text-decoration: none;
 }
+.btn:hover{ background: #1f1f1f; }
 
-.btn:hover{
-  background: #1f1f1f;
-}
 .reviewHeader{ display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-top:18px; }
 .reviewHeader h2{ margin:0; font-size:22px; font-weight:900; }
 .hint{ font-size:12px; color:#777; font-weight:700; }
@@ -79,7 +104,6 @@ h1{ margin:0; font-size:26px; font-weight:900; }
 .tag.green{ background:#bfe7b8; }
 .tag.yellow{ background:#f2edb1; }
 .tag.red{ background:#f3b6ad; }
-
 .tag.active{ outline:3px solid rgba(0,0,0,0.25); }
 
 .reviewList{ display:flex; flex-direction:column; gap:12px; }
@@ -93,11 +117,7 @@ h1{ margin:0; font-size:26px; font-weight:900; }
 
 .loading,.empty{ color:#777; font-weight:800; padding:10px 0; }
 
-.rightRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.rightRow { display: flex; align-items: center; gap: 10px; }
 
 .bookmarkBtn {
   border: 1px solid #e5e5e5;
@@ -110,16 +130,5 @@ h1{ margin:0; font-size:26px; font-weight:900; }
   justify-content: center;
   cursor: pointer;
 }
-
-.bookmarkBtn .heart {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.bookmarkBtn.active {
-  border-color: #111;
-}
-
-.bookmarkBtn.active .heart {
-  content: "♥";
-}
+.bookmarkBtn .heart { font-size: 18px; line-height: 1; }
+.bookmarkBtn.active { border-color: #111; }

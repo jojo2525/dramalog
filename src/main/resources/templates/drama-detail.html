@@ -8,55 +8,59 @@
 </head>
 <body>
 
-<header class="topbar">
-  <a class="back" href="/">←</a>
-  <div class="title">리뷰</div>
-</header>
+<div class="page">
+  <header class="topbar">
+    <a class="back" href="/">←</a>
+    <div class="title">리뷰</div>
+  </header>
 
-<main class="container">
-	<section class="hero">
-	  <div class="coverWrap">
-	    <img id="cover" class="cover" src="https://via.placeholder.com/800x450" alt="cover" />
-	  </div>
-	  <div class="info">
-      <div class="chips">
-        <span class="chip" id="genreChip">장르</span>
-        <span class="chip" id="yearChip">연도</span>
+  <main class="container">
+    <section class="hero">
+      <div class="coverWrap">
+        <img id="cover" class="cover" src="https://via.placeholder.com/800x450" alt="cover" />
       </div>
-	  <div class="nameRow">
-	    <h1 id="dramaTitle">드라마 제목</h1>
 
-	    <div class="rightRow">
-	      <div class="rating"><span>★</span><span id="avgRating">-</span></div>
+      <div class="info">
+        <div class="chips">
+          <span class="chip" id="genreChip">장르</span>
+          <span class="chip" id="yearChip">연도</span>
+        </div>
 
-	      <button id="bookmarkBtn" class="bookmarkBtn" type="button" title="찜하기">
-	        <span class="heart">♡</span>
-	      </button>
-	    </div>
-	  </div>
-      <div class="sub" id="writerActors">작가 | 주연</div>
-      <p class="synopsis" id="synopsis">줄거리</p>
-    </div>
-  </section>
+        <div class="nameRow">
+          <h1 id="dramaTitle">드라마 제목</h1>
 
-  <section class="btnRow">
-    <a class="btn" th:href="@{'/review/new/' + ${dramaId}}">리뷰 작성하기</a>
-	<a class="btn" th:href="@{/dramas/{id}/chat(id=${dramaId})}">
-	  실시간 채팅방
-	</a>
-  </section>
+          <div class="rightRow">
+            <div class="rating"><span>★</span><span id="avgRating">-</span></div>
 
-  <section class="reviewSection">
-    <div class="reviewHeader">
-      <h2>Review</h2>
-      <div class="hint">회차를 클릭하면 해당 회차의 리뷰를 표시합니다</div>
-    </div>
+            <button id="bookmarkBtn" class="bookmarkBtn" type="button" title="찜하기">
+              <span class="heart">♡</span>
+            </button>
+          </div>
+        </div>
 
-    <div id="episodeTags" class="tags"></div>
+        <div class="sub" id="writerActors">작가 | 주연</div>
+        <p class="synopsis" id="synopsis">줄거리</p>
+      </div>
+    </section>
 
-    <div id="reviewList" class="reviewList"></div>
-  </section>
-</main>
+    <section class="btnRow">
+      <a class="btn" th:href="@{'/review/new/' + ${dramaId}}">리뷰 작성하기</a>
+      <a class="btn" th:href="@{/dramas/{id}/chat(id=${dramaId})}">
+        실시간 채팅방
+      </a>
+    </section>
+
+    <section class="reviewSection">
+      <div class="reviewHeader">
+        <h2>Review</h2>
+        <div class="hint">회차를 클릭하면 해당 회차의 리뷰를 표시합니다</div>
+      </div>
+
+      <div id="episodeTags" class="tags"></div>
+      <div id="reviewList" class="reviewList"></div>
+    </section>
+  </main>
+</div>
 
 <script>
   // URL: /drama/3 형태면 dramaId=3 추출
@@ -142,65 +146,62 @@
       episodeReviewCountMap.set(ep, cnt);
     });
   }
-  
-  // 북마크 
-  
+
+  // 북마크
   async function syncBookmarkUI() {
-      const btn = document.getElementById("bookmarkBtn");
-      if (!btn) return;
+    const btn = document.getElementById("bookmarkBtn");
+    if (!btn) return;
 
-      try {
-        const res = await fetch(`/api/bookmarks/${dramaId}/exists`);
-        const exists = await res.json(); // 401이면 false 내려오게 해둠
+    try {
+      const res = await fetch(`/api/bookmarks/${dramaId}/exists`);
+      const exists = await res.json(); // 401이면 false 내려오게 해둠
 
-        if (exists) {
-          btn.classList.add("active");
-          btn.querySelector(".heart").textContent = "♥";
-        } else {
-          btn.classList.remove("active");
-          btn.querySelector(".heart").textContent = "♡";
-        }
-      } catch (e) {
-        console.error(e);
+      if (exists) {
+        btn.classList.add("active");
+        btn.querySelector(".heart").textContent = "♥";
+      } else {
+        btn.classList.remove("active");
+        btn.querySelector(".heart").textContent = "♡";
       }
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    async function toggleBookmark() {
-      const btn = document.getElementById("bookmarkBtn");
-      if (!btn) return;
+  async function toggleBookmark() {
+    const btn = document.getElementById("bookmarkBtn");
+    if (!btn) return;
 
-      try {
-        const res = await fetch(`/api/bookmarks/${dramaId}/toggle`, { method: "POST" });
+    try {
+      const res = await fetch(`/api/bookmarks/${dramaId}/toggle`, { method: "POST" });
 
-        if (res.status === 401) {
-          alert("로그인이 필요합니다.");
-          return;
-        }
-        if (!res.ok) throw new Error("toggle 실패: " + res.status);
-
-        const data = await res.json(); // { bookmarked: true/false }
-        const on = !!data.bookmarked;
-
-        if (on) {
-          btn.classList.add("active");
-          btn.querySelector(".heart").textContent = "♥";
-        } else {
-          btn.classList.remove("active");
-          btn.querySelector(".heart").textContent = "♡";
-        }
-      } catch (e) {
-        console.error(e);
-        alert("찜 처리 중 오류가 발생했어요.");
+      if (res.status === 401) {
+        alert("로그인이 필요합니다.");
+        return;
       }
+      if (!res.ok) throw new Error("toggle 실패: " + res.status);
+
+      const data = await res.json(); // { bookmarked: true/false }
+      const on = !!data.bookmarked;
+
+      if (on) {
+        btn.classList.add("active");
+        btn.querySelector(".heart").textContent = "♥";
+      } else {
+        btn.classList.remove("active");
+        btn.querySelector(".heart").textContent = "♡";
+      }
+    } catch (e) {
+      console.error(e);
+      alert("찜 처리 중 오류가 발생했어요.");
     }
+  }
 
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("#bookmarkBtn");
-      if (!btn) return;
-      toggleBookmark();
-    });
-
-	// 여기까지 북마크 관련 ! 
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#bookmarkBtn");
+    if (!btn) return;
+    toggleBookmark();
+  });
 
   async function loadReviews() {
     const list = document.getElementById("reviewList");
@@ -231,7 +232,7 @@
 
   async function init() {
     await loadDramaDetail();
-	await syncBookmarkUI();
+    await syncBookmarkUI();
     await loadEpisodeCounts();
     renderTags();
     await loadReviews();
@@ -239,5 +240,6 @@
 
   init();
 </script>
+
 </body>
 </html>
