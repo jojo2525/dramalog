@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>WS Test</title>
+</head>
+<body>
+  <h3>WebSocket 테스트</h3>
+
+  <button id="login">1) 로그인</button>
+
+  <br/><br/>
+
+  dramaId:
+  <input id="dramaId" value="12" style="width:60px;" />
+  <button id="connect">2) 연결</button>
+
+  <br/><br/>
+
+  <input id="msg" placeholder="message"/>
+  <button id="send">보내기</button>
+
+  <pre id="log"></pre>
+
+<script>
+  let ws = null;
+  const log = (s) =>
+    document.getElementById("log").textContent += s + "\n";
+
+  // 1) 로그인
+  document.getElementById("login").onclick = async () => {
+    await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name: "finn", pin4: "1234" })
+    });
+    log("로그인 완료");
+  };
+
+  // 2) WebSocket 연결 (dramaId 기준)
+  document.getElementById("connect").onclick = () => {
+    const dramaId = document.getElementById("dramaId").value.trim();
+
+    ws = new WebSocket(`ws://${location.host}/ws/chat/${dramaId}`);
+
+    ws.onopen = () =>
+      log("WS 연결됨 (dramaId=" + dramaId + ")");
+
+    ws.onmessage = (e) =>
+      log("수신: " + e.data);
+
+    ws.onclose = () =>
+      log("WS 종료");
+  };
+
+  // 3) 메시지 보내기
+  document.getElementById("send").onclick = () => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      log("아직 WS 연결 안 됨");
+      return;
+    }
+    ws.send(
+      JSON.stringify({ text: document.getElementById("msg").value })
+    );
+  };
+</script>
+</body>
+</html>

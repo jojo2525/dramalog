@@ -24,6 +24,7 @@ public class PageController {
         return "login";
     }
 
+    // 홈
     @GetMapping("/")
     public String home(HttpSession session, Model model) {
 
@@ -68,4 +69,11 @@ public class PageController {
         model.addAttribute("dramaId", dramaId);
         return "review-new";
     }
+    
+    // 채팅방 테스트용: 나중에 지우기!
+    @GetMapping("/test/chat")
+    public String testChat() {
+        return "test-chat";
+    }
+
 }
