@@ -14,38 +14,34 @@
 
 <main class="container">
 
-  <!-- 레벨 영역 (임시) -->
+  <!-- 레벨 영역 -->
   <section class="level-card">
     <div class="level-badge" th:text="'Lv.' + ${level}">Lv.1</div>
     <div class="level-image">
-		<img class="level-img"
-		     th:src="@{'/images/dramalevel' + ${level} + '.png'}"
-		     alt="level image">
+      <img class="level-img"
+           th:src="@{'/images/dramalevel' + ${level} + '.png'}"
+           alt="level image">
     </div>
   </section>
 
-  <!-- 나의 리뷰 (임시) -->
+  <!-- 나의 리뷰 -->
   <section class="section">
     <h2 class="section-title">나의 리뷰</h2>
 
     <!-- 비어있을 때(짧게) -->
-    <div id="myReviewsEmpty" class="reviews-empty" style="display:none;">
+    <div id="myReviewsEmpty" class="myreviews-empty" style="display:none;">
       아직 등록한 리뷰가 없어요!
     </div>
 
     <!-- 있을 때 -->
-    <div id="myReviewsRow" class="horizontal-scroll"></div>
+    <div id="myReviews" class="horizontal-scroll myreviews-scroll"></div>
   </section>
-  
 
-  <!-- 추천 드라마  -->
+  <!-- 추천 드라마 -->
   <section class="section">
     <h2 class="section-title"><span th:text="${userName}">홍길동</span>님이 좋아할만한 드라마</h2>
 
-    <div id="grid" class="grid">
-      <!-- JS로 카드 삽입 -->
-    </div>
-
+    <div id="grid" class="grid"></div>
     <div id="loading" class="hint">불러오는 중...</div>
     <div id="error" class="hint error" style="display:none;"></div>
   </section>
@@ -58,7 +54,17 @@
 </nav>
 
 <script>
-  // 여기서 추천 드라마를 REST API로 가져와서 렌더링
+  // ---------- 공통 ----------
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // ---------- 추천 드라마 ----------
   async function loadRecommendedDramas() {
     const grid = document.getElementById("grid");
     const loading = document.getElementById("loading");
@@ -68,31 +74,26 @@
       loading.style.display = "block";
       errorBox.style.display = "none";
 
-      // REST 컨트롤러가 제공하는 추천 API
       const res = await fetch("/api/dramas/recommand");
       if (!res.ok) throw new Error("API 요청 실패: " + res.status);
 
-      const dramas = await res.json(); // List<DramaSummaryResponse>
-
-      // 기존 내용 초기화
+      const dramas = await res.json();
       grid.innerHTML = "";
 
-      // 카드 생성
       dramas.forEach(d => {
-        const dramaId = d.dramaId ?? d.dramaID ?? d.id; // 혹시 DTO 필드명이 다를경우에 대비 
+        const dramaId = d.dramaId ?? d.dramaID ?? d.id;
         const title = d.title ?? "";
         const genre = d.genre ?? "";
         const rating = d.avgRating ?? "";
         const cover = d.coverImage ?? "";
 
-        // coverImage가 null/빈값이면 placeholder
         const imgSrc = (cover && cover.trim().length > 0)
           ? cover
           : "https://via.placeholder.com/300x420?text=No+Image";
 
         const a = document.createElement("a");
         a.className = "drama-card";
-        a.href = `/drama/${dramaId}`; // 상세 페이지 URL (아래에서 PageController로 연결)
+        a.href = `/drama/${dramaId}`;
         a.innerHTML = `
           <div class="thumb"><img src="${imgSrc}" alt="thumbnail"></div>
           <div class="meta">
@@ -112,39 +113,57 @@
     }
   }
 
-  // XSS 방지용 간단 escape
-  function escapeHtml(str) {
-    return String(str)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+  // ---------- 나의 리뷰 카드 ----------
+  function renderMyReviewCard({ reviewId, dramaId, ratingText, episodeText, content, dramaTitle, dramaThumb }) {
+    const imgSrc = (dramaThumb && String(dramaThumb).trim())
+      ? dramaThumb
+      : "https://via.placeholder.com/120x160?text=No+Image";
+
+    const card = document.createElement("div");
+    card.className = "review-card";
+    card.innerHTML = `
+      <div class="review-topline">
+        <span>별점: ${escapeHtml(ratingText)}</span>
+        <span class="dot">|</span>
+        <span>회차: ${escapeHtml(episodeText)}</span>
+      </div>
+
+      <div class="review-body">
+        <div class="review-text">
+          <div class="review-content">${escapeHtml(content)}</div>
+          <div class="review-actions">
+            <button class="btn-delete" data-review-id="${reviewId}">삭제</button>
+          </div>
+        </div>
+
+        <a class="review-thumb" href="/drama/${dramaId}">
+          <img src="${imgSrc}" alt="thumb">
+          <div class="review-drama-title">${escapeHtml(dramaTitle)}</div>
+        </a>
+      </div>
+    `;
+    return card;
   }
 
-  // 나의 리뷰 보기 
   async function loadMyReviews() {
-      const row = document.getElementById("myReviewsRow");
-      const empty = document.getElementById("myReviewsEmpty");
+    const empty = document.getElementById("myReviewsEmpty");
+    const wrap = document.getElementById("myReviews");
 
-      row.innerHTML = "";
-      empty.style.display = "none";
+    wrap.innerHTML = "";
+    empty.style.display = "none";
 
-      // 1) 로그인 유저 확인
+    try {
       const meRes = await fetch("/api/auth/me");
-      const me = await meRes.json().catch(() => null);
+      if (!meRes.ok) throw new Error("로그인 정보 불러오기 실패");
+      const me = await meRes.json();
 
-      if (!me || !me.userID) { // 로그인 안된 상태
+      if (!me || !me.userID) {
         empty.style.display = "block";
         return;
       }
 
-      // 2) 내 리뷰 가져오기
-      const res = await fetch(`/api/reviews/by-user/${me.userID}`);
-      if (!res.ok) {
-        empty.style.display = "block";
-        return;
-      }
+      const res = await fetch("/api/reviews/me");
+      if (!res.ok) throw new Error("리뷰 불러오기 실패");
       const reviews = await res.json();
 
       if (!reviews || reviews.length === 0) {
@@ -152,56 +171,95 @@
         return;
       }
 
-      // 너무 많이 길어지면 최근 10개만
       const sliced = reviews.slice(0, 10);
 
-      // 3) 각 리뷰의 dramaID로 드라마 상세(제목/썸네일) 가져오기
+      // dramaId별 상세정보(제목/썸네일) 가져오기
       const dramaMap = new Map();
       await Promise.all(sliced.map(async (r) => {
         const dramaId = r.dramaID ?? r.dramaId;
         if (!dramaId || dramaMap.has(dramaId)) return;
+
         const dRes = await fetch(`/api/dramas/${dramaId}`);
         if (!dRes.ok) return;
+
         const d = await dRes.json();
         dramaMap.set(dramaId, d);
       }));
 
       // 렌더
-      sliced.forEach(r => {
-        const dramaId = r.dramaID ?? r.dramaId;
-        const d = dramaMap.get(dramaId) || {};
-        const title = d.title || `드라마 #${dramaId}`;
-        const cover = d.coverImage || "https://via.placeholder.com/300x420?text=No+Image";
+	  sliced.forEach(r => {
+	    const reviewId = r.reviewID ?? r.reviewId;
+	    const dramaId  = r.dramaID ?? r.dramaId;
 
-        const rating = (r.rating ?? "-");
-        const ep = (r.episodeSelected == null) ? "선택 안함" : `${r.episodeSelected}화`;
-        const content = r.content ?? "";
+	    const d = dramaMap.get(dramaId) || {};
+	    const dramaTitle = d.title || `드라마 #${dramaId}`;
+	    const dramaThumb = d.coverImage || "";
 
-        const a = document.createElement("a");
-        a.className = "myreview-card";
-        a.href = `/drama/${dramaId}`;
+	    const ratingText  = (r.rating == null || r.rating === "") ? "-" : String(r.rating);
+	    const episodeText = (r.episodeSelected == null) ? "선택 안함" : `${r.episodeSelected}화`;
+	    const content     = r.content ?? "";
 
-        a.innerHTML = `
-          <div class="myreview-left">
-            <div class="myreview-top">
-              <div>별점: ${escapeHtml(rating)}</div>
-              <div>회차: ${escapeHtml(ep)}</div>
-            </div>
-            <div class="myreview-content">${escapeHtml(content)}</div>
-          </div>
+	    const cardEl = renderMyReviewCard({
+	      reviewId,
+	      dramaId,
+	      ratingText,
+	      episodeText,
+	      content,
+	      dramaTitle,
+	      dramaThumb
+	    });
 
-          <div class="myreview-right">
-            <img class="myreview-thumb" src="${cover}" alt="thumb">
-            <div class="myreview-title">${escapeHtml(title)}</div>
-          </div>
-        `;
-        row.appendChild(a);
-      });
+	    wrap.appendChild(cardEl); // 엘리먼트는 appendChild로
+	  });
+    } catch (e) {
+      console.error(e);
+      empty.style.display = "block";
+      empty.textContent = "리뷰를 불러오지 못했어요.";
     }
+  }
 
-    loadRecommendedDramas();
-    loadMyReviews();
-	
+  // 삭제 버튼 클릭 -> DELETE /api/reviews/{id}
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".btn-delete");
+    if (!btn) return;
+
+    const reviewId = btn.dataset.reviewId;
+    if (!reviewId) return;
+
+    const ok = confirm("이 리뷰를 삭제할까요?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || ("삭제 실패: " + res.status));
+      }
+
+      // 화면에서 카드 제거 (즉시 반영)
+      const card = btn.closest(".review-card");
+      if (card) card.remove();
+
+      // 카드 다 없어졌으면 empty 띄우기
+      const wrap = document.getElementById("myReviews");
+      const empty = document.getElementById("myReviewsEmpty");
+      if (wrap && empty && wrap.children.length === 0) {
+        empty.style.display = "block";
+      }
+
+      // (선택) 레벨 이미지 갱신까지 하고 싶으면 그냥 새로고침
+      // location.reload();
+
+    } catch (err) {
+      console.error(err);
+      alert("삭제 중 오류: " + err.message);
+    }
+  });
+
+  // 실행
+  loadRecommendedDramas();
+  loadMyReviews();
 </script>
+
 </body>
 </html>

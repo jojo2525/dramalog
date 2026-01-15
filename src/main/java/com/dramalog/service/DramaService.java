@@ -80,18 +80,6 @@ public class DramaService {
 				d.getHotEpisode());
 	}
 	
-	// 평균 별점 갱신
-	@Transactional
-	public void updateAvgRating(Integer dramaID) {
-		BigDecimal avg = reviewRepo.findAvgRatingForDrama(dramaID);
-		
-		Drama drama = dramaRepo.findById(dramaID)
-				.orElseThrow(() -> new IllegalArgumentException("드라마가 존재하지 않습니다."));
-		
-		if (avg == null) {
-			drama.setAvgRating(null);
-		} else {
-			drama.setAvgRating(avg.setScale(2, RoundingMode.HALF_UP));
-		}
-	}
+
+	
 }

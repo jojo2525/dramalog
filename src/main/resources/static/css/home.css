@@ -1,4 +1,5 @@
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
@@ -24,6 +25,7 @@ body {
   padding-bottom: 84px; /* 탭바 공간 */
 }
 
+/* ---------- 레벨 ---------- */
 .level-card {
   background: #f4f4f4;
   border-radius: 12px;
@@ -35,50 +37,28 @@ body {
   margin-bottom: 10px;
 }
 
-.level-image .placeholder {
-  height: 160px;
-  border-radius: 10px;
-  background: #e7e7e7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #777;
-  font-weight: 700;
-}
-
 .level-image {
   padding: 0;
-  overflow: hidden; 
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .level-img {
   width: 100%;
-  height: 160px;            /* 고정 높이 */
-  object-fit: cover;        /*  비율 유지 + 잘림 */
-  object-position: center;  
+  height: 160px;
+  object-fit: cover;       /* 가운데 기준 잘림 */
+  object-position: center;
   display: block;
 }
 
+/* ---------- 섹션 ---------- */
 .section { margin-top: 22px; }
+
 .section-title {
   margin: 0 0 12px;
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.3px;
-}
-
-.horizontal-scroll {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-}
-.review-card {
-  min-width: 220px;
-  height: 140px;
-  border-radius: 12px;
-  background: #efefef;
-  padding: 12px;
 }
 
 .placeholder {
@@ -89,18 +69,18 @@ body {
   font-weight: 700;
 }
 
-/* 5열 그리드 */
+/* ---------- 추천 드라마 (5열) ---------- */
 .grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
 }
 
-/* 카드 */
 .drama-card {
   text-decoration: none;
   color: inherit;
 }
+
 .thumb {
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -108,6 +88,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
 }
+
 .thumb img {
   width: 100%;
   height: 100%;
@@ -116,16 +97,19 @@ body {
 }
 
 .meta { padding-top: 8px; }
+
 .title {
   font-weight: 900;
   font-size: 14px;
   line-height: 1.2;
   margin-bottom: 4px;
 }
+
 .sub {
   font-size: 12px;
   color: #666;
 }
+
 .dot { margin: 0 6px; color: #bbb; }
 
 .hint {
@@ -135,7 +119,7 @@ body {
 }
 .hint.error { color: #b00020; }
 
-/* 하단 탭 */
+/* ---------- 하단 탭 ---------- */
 .tabbar {
   position: fixed;
   left: 0; right: 0; bottom: 0;
@@ -146,6 +130,7 @@ body {
   justify-content: space-around;
   align-items: center;
 }
+
 .tab {
   text-decoration: none;
   color: #666;
@@ -153,89 +138,197 @@ body {
   padding: 10px 14px;
   border-radius: 10px;
 }
+
 .tab.active {
   color: #111;
   background: #f1f1f1;
 }
 
+/* =========================================================
+   나의 리뷰 (가로 스크롤 X, 최신 10개 전부 보이기)
+   ========================================================= */
 
-.reviews-empty{
-  margin-top: 8px;
-  padding: 10px 12px;
-  color: #777;
-  font-weight: 800;
+/* 빈 상태 */
+.myreviews-empty{
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #f3f3f3;
+  border-radius: 12px;
+  color: #666;
   font-size: 14px;
 }
 
-.myreview-card{
-  min-width: 520px;
-  max-width: 520px;
-  background:#eee;
-  border-radius: 14px;
-  padding: 18px;
-  display:flex;
-  gap: 18px;
-  text-decoration:none;
-  color:#111;
+/* 가로 스크롤 컨테이너 */
+#myReviews.horizontal-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+
+  /* 스크롤 부드럽게 */
+  -webkit-overflow-scrolling: touch;
+
+  /* 카드가 줄바꿈 안 되게 */
+  flex-wrap: nowrap;
 }
 
-.myreview-left{
-  flex: 1;
+/* (선택) 스크롤바 살짝 깔끔하게 - 크롬/사파리 */
+#myReviews.horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+#myReviews.horizontal-scroll::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 999px;
+}
+#myReviews.horizontal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 리뷰 카드: 가로로 넘길 때 폭 고정 */
+#myReviews .review-card {
+  flex: 0 0 420px;      /* 한 카드 폭 (원하면 360~520으로 조절) */
+  max-width: 420px;
+}
+
+/* 카드 안 썸네일 튀어나옴 방지 */
+#myReviews .review-body,
+#myReviews .review-text {
   min-width: 0;
 }
 
-.myreview-top{
-  display:flex;
-  gap: 24px;
-  font-weight: 900;
-  font-size: 18px;
-  margin-bottom: 18px;
+/* 모바일이면 카드 폭 줄이기 */
+@media (max-width: 600px) {
+  #myReviews .review-card {
+    flex-basis: 320px;
+    max-width: 320px;
+  }
 }
 
-.myreview-content{
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.6;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 5;      /* 길면 ... */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/*  나의 리뷰 카드(기존 고정폭/가로스크롤용 flex 제거) */
+.review-card{
+  background: #f3f3f3!important;   
+  border-radius: 12px!important;
+  padding: 16px!important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04)!important;
 }
 
-.myreview-right{
-  width: 140px;
-  flex: 0 0 140px;
-  display:flex;
+/* 상단 메타 (별점/회차) */
+.review-topline{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.review-topline .dot{ opacity: .7; }
+
+/* 본문: 좌(텍스트) 우(썸네일) */
+.review-body{
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* 왼쪽 텍스트 */
+.review-text{
+  flex: 1;
+  display: flex;
   flex-direction: column;
-  align-items:center;
-  gap: 8px;
+  min-width: 0;
 }
 
-.myreview-thumb{
-  width: 140px;
-  height: 180px;
-  border-radius: 10px;
-  background: #444;
-  object-fit: cover;
-  display:block;
-}
-
-.myreview-title{
-  width: 100%;
-  text-align: center;
-  font-weight: 900;
+.review-content{
+  flex: 1;
   font-size: 16px;
-  color:#111;
+  line-height: 1.5;
+  color: #111;
 
-  white-space: nowrap;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+
+/* 삭제 버튼 */
+.review-actions{
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 리뷰 삭제 버튼 */
+.btn-delete{
+  background: #111!important;    
+  color: #fff!important;       
+  border: none!important;
+  padding: 8px 12px!important;
+  border-radius: 8px!important;  
+  font-weight: 700!important;
+  font-size: 13px!important;
+  cursor: pointer!important;
+}
+
+.btn-delete:hover{
+  background: #000;      
+}
+
+.review-del{
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.review-del:hover{ background:#000; }
+
+/* 드라마 썸네일: 링크여도 디자인 유지 */
+.review-thumb{
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.review-thumb img{
+  width: 120px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 5px;
+  background: #ccc;
+  display: block;
+}
+
+.review-drama-title{
+  font-weight: 800;
+  font-size: 14px;
+  text-align: center;
+  color: #111;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* 모바일이면 카드 폭 줄이기 */
+/* ---------- 모바일 ---------- */
 @media (max-width: 600px){
-  .myreview-card{ min-width: 360px; max-width: 360px; }
-  .myreview-right{ width: 110px; flex-basis: 110px; }
-  .myreview-thumb{ width: 110px; height: 150px; }
+  .myreviews-grid{
+    grid-template-columns: 1fr; /* 모바일은 1열이 자연스럽게 */
+  }
+  .review-thumb{
+    width: 120px;
+  }
+  .review-thumb img{
+    width: 110px;
+    height: 150px;
+  }
 }

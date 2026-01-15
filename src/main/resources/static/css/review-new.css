@@ -1,0 +1,20 @@
+body { margin:0; font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif; background:#fff; color:#111; }
+.topbar { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid #eee; }
+.back { text-decoration:none; color:#111; font-size:20px; }
+.title { font-weight:700; flex:1; text-align:center; }
+.spacer { width:24px; }
+
+.container { max-width:900px; margin:0 auto; padding:16px; }
+.card { border:1px solid #eee; border-radius:16px; padding:16px; }
+.row { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+label { font-weight:700; }
+input, select, textarea { padding:12px; border-radius:12px; border:1px solid #ddd; font-size:14px; }
+.hint { font-size:12px; color:#666; }
+.error { margin-top:10px; color:#c00; font-size:13px; }
+.submit { width:100%; padding:14px; border:none; border-radius:12px; background:#111; color:#fff; font-weight:700; cursor:pointer; }
+
+.btn {
+  display: block; /* 또는 inline-block */
+  text-decoration: none;
+  cursor: pointer;
+}
