@@ -71,3 +71,34 @@ h1{ margin:0; font-size:26px; font-weight:900; }
 .reviewBody{ color:#111; font-weight:800; }
 
 .loading,.empty{ color:#777; font-weight:800; padding:10px 0; }
+
+.rightRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bookmarkBtn {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.bookmarkBtn .heart {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bookmarkBtn.active {
+  border-color: #111;
+}
+
+.bookmarkBtn.active .heart {
+  content: "♥";
+}

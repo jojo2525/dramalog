@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DramaLog - Wishlist</title>
+  <link rel="stylesheet" href="/css/wishlist.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">DramaLog</div>
+</header>
+
+<main class="container">
+  <section class="section">
+	<div class="wishlist-header">
+    <h2 class="section-title"><span th:text="${userName}">홍길동</span>님이 찜한 드라마</h2></div>
+
+    <div id="empty" class="hint" style="display:none;">아직 찜한 드라마가 없어요.</div>
+    <div id="grid" class="grid-5"></div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <a class="tab" href="/">홈</a>
+  <a class="tab active" href="/wishlist">찜</a>
+</nav>
+
+<script>
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  async function loadWishlist() {
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+
+    grid.innerHTML = "";
+    empty.style.display = "none";
+
+    try {
+      const res = await fetch("/api/bookmarks/me");
+      if (res.status === 401) {
+        empty.style.display = "block";
+        empty.textContent = "로그인이 필요합니다.";
+        return;
+      }
+      if (!res.ok) throw new Error("찜 목록 불러오기 실패: " + res.status);
+
+      const dramas = await res.json();
+
+      if (!dramas || dramas.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+
+      dramas.forEach(d => {
+        const dramaId = d.dramaId ?? d.dramaID ?? d.id;
+        const title = d.title ?? "";
+        const genre = d.genre ?? "";
+        const rating = d.avgRating ?? "";
+        const cover = d.coverImage ?? "";
+
+        const imgSrc = (cover && cover.trim().length > 0)
+          ? cover
+          : "https://via.placeholder.com/300x420?text=No+Image";
+
+        const a = document.createElement("a");
+        a.className = "drama-card";
+        a.href = `/drama/${dramaId}`;
+        a.innerHTML = `
+          <div class="thumb"><img src="${imgSrc}" alt="thumbnail"></div>
+          <div class="meta">
+            <div class="title">${escapeHtml(title)}</div>
+            <div class="sub">${escapeHtml(genre)} <span class="dot">|</span> 별점: ${rating}</div>
+          </div>
+        `;
+        grid.appendChild(a);
+      });
+
+    } catch (e) {
+      console.error(e);
+      empty.style.display = "block";
+      empty.textContent = "찜 목록을 불러오지 못했어요.";
+    }
+  }
+
+  loadWishlist();
+</script>
+
+</body>
+</html>

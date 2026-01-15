@@ -25,7 +25,7 @@ public class DramaController {
 	// count는 기본값으로 10 해뒀습니다.
 	@GetMapping("/recommand")
 	public List<DramaSummaryResponse> getRandomDramas() {
-		return dramaService.getRandomDramaSummaries(40);
+		return dramaService.getRandomDramaSummaries(45);
 	}
 	
 	// 상세페이지: 드라마 상세 정보

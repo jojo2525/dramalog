@@ -23,10 +23,17 @@
         <span class="chip" id="genreChip">장르</span>
         <span class="chip" id="yearChip">연도</span>
       </div>
-      <div class="nameRow">
-        <h1 id="dramaTitle">드라마 제목</h1>
-        <div class="rating"><span>★</span><span id="avgRating">-</span></div>
-      </div>
+	  <div class="nameRow">
+	    <h1 id="dramaTitle">드라마 제목</h1>
+
+	    <div class="rightRow">
+	      <div class="rating"><span>★</span><span id="avgRating">-</span></div>
+
+	      <button id="bookmarkBtn" class="bookmarkBtn" type="button" title="찜하기">
+	        <span class="heart">♡</span>
+	      </button>
+	    </div>
+	  </div>
       <div class="sub" id="writerActors">작가 | 주연</div>
       <p class="synopsis" id="synopsis">줄거리</p>
     </div>
@@ -133,6 +140,65 @@
       episodeReviewCountMap.set(ep, cnt);
     });
   }
+  
+  // 북마크 
+  
+  async function syncBookmarkUI() {
+      const btn = document.getElementById("bookmarkBtn");
+      if (!btn) return;
+
+      try {
+        const res = await fetch(`/api/bookmarks/${dramaId}/exists`);
+        const exists = await res.json(); // 401이면 false 내려오게 해둠
+
+        if (exists) {
+          btn.classList.add("active");
+          btn.querySelector(".heart").textContent = "♥";
+        } else {
+          btn.classList.remove("active");
+          btn.querySelector(".heart").textContent = "♡";
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function toggleBookmark() {
+      const btn = document.getElementById("bookmarkBtn");
+      if (!btn) return;
+
+      try {
+        const res = await fetch(`/api/bookmarks/${dramaId}/toggle`, { method: "POST" });
+
+        if (res.status === 401) {
+          alert("로그인이 필요합니다.");
+          return;
+        }
+        if (!res.ok) throw new Error("toggle 실패: " + res.status);
+
+        const data = await res.json(); // { bookmarked: true/false }
+        const on = !!data.bookmarked;
+
+        if (on) {
+          btn.classList.add("active");
+          btn.querySelector(".heart").textContent = "♥";
+        } else {
+          btn.classList.remove("active");
+          btn.querySelector(".heart").textContent = "♡";
+        }
+      } catch (e) {
+        console.error(e);
+        alert("찜 처리 중 오류가 발생했어요.");
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("#bookmarkBtn");
+      if (!btn) return;
+      toggleBookmark();
+    });
+
+	// 여기까지 북마크 관련 ! 
 
   async function loadReviews() {
     const list = document.getElementById("reviewList");
@@ -163,6 +229,7 @@
 
   async function init() {
     await loadDramaDetail();
+	await syncBookmarkUI();
     await loadEpisodeCounts();
     renderTags();
     await loadReviews();

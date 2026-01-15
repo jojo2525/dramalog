@@ -57,6 +57,28 @@ public class PageController {
 
         return "home";
     }
+    
+    // 찜 !!!
+    @GetMapping("/wishlist")
+    public String wishlistPage(HttpSession session, Model model) {
+        User sessionUser = (User) session.getAttribute("currentUser");
+
+        if (sessionUser == null) {
+            // 로그인 안했으면 안내 페이지로
+            return "wishlist-guest";
+        }
+
+        User fresh = userRepo.findById(sessionUser.getUserID()).orElse(sessionUser);
+        session.setAttribute("currentUser", fresh);
+
+        String name = (fresh.getName() != null && !fresh.getName().isBlank())
+                ? fresh.getName()
+                : "사용자";
+
+        model.addAttribute("userName", name);
+        return "wishlist";
+    }
+    
 
     @GetMapping("/drama/{dramaId}")
     public String dramaDetailPage(@PathVariable Integer dramaId, Model model) {
